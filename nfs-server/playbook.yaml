@@ -1,0 +1,33 @@
+---
+
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+
+- hosts: all
+  tasks:
+  - apt: update_cache=yes
+  - apt: upgrade=full
+  - apt: name=nfs-kernel-server state=present
+  - file: path=/export/{{ item }} state=directory
+    with_items:
+    - first
+    - second
+    - third
+  - copy: src=files/exports dest=/etc/exports mode=0644 owner=root group=root
+    notify: restart nfs-kernel-server
+  - service: name=nfs-kernel-server state=restarted enabled=yes
+  - meta: flush_handlers
+  - command: exportfs -a
+
+  handlers:
+  - name: restart nfs-kernel-server
+    service: name=nfs-kernel-server state=restarted
