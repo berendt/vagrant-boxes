@@ -1,0 +1,25 @@
+- hosts: all
+  sudo: True
+
+  tasks:
+  - command: zypper ref
+  - command: zypper up -y
+  - zypper: name=ntp state=present
+  - copy: src=files/ntp.conf dest=/etc/ntp.conf
+    notify: restart ntp
+  - command: systemctl enable ntp.service
+  - command: systemctl start ntp.service
+  - zypper: name=rabbitmq-server state=present
+  - copy: src=files/erlang.cookie dest=/var/lib/rabbitmq/.erlang.cookie mode=0400 owner=rabbitmq group=rabbitmq
+  - lineinfile: dest=/home/vagrant/.ssh/authorized_keys
+                line='ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDIvUgz/IWmXcT8rvCtd5SPH76S9PmlphDLQJTBqOxuZFCFaCtHFdSOWZlpbN0b2QMSzx+BBUTmFW7c3RZrfYvEKwTT0yFJ6iqwQWMR2XwvhpEBHXXW5dMsSnVxW9dI8ABGcPKBDU8Jo6fyh9yQhb8kVDH/xTmQqt/DGjOeC7sErw/kJAc72r3s3VjBOfZdUvsOYx4GhGGQ6ikVwd5kgz9QSXAf9BrlVrQC3bLMpBX7UF9IOeOZRximp1L9Lh2oH0o8mofBNc78UzH7NM0liN5t0ZrreKUns2towxIgU07AoqqoEO7nGztWc1MvyhxmmdoMSylOUvkJqDMRQ5nibuu7'
+  - service: name=rabbitmq-server state=started enabled=yes
+  - wait_for: port=5672 delay=1
+  - command: sleep 15
+  - command: rabbitmqctl cluster_status
+    register: output
+  - debug: var=output.stdout_lines
+
+  handlers:
+  - name: restart ntp
+    service: name=ntp state=restarted

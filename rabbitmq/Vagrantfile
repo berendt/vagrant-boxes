@@ -1,0 +1,54 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+
+NUMBER_OF_NODES = 5
+
+Vagrant.configure(2) do |config|
+  config.vm.box = "berendt/opensuse-13.1-x86_64"
+  config.vm.synced_folder '.', '/vagrant', disabled: true
+  config.vm.provider "virtualbox" do |vb|
+    vb.customize ["modifyvm", :id, "--memory", "2048"]
+    vb.customize ["modifyvm", :id, "--cpus", "2"]
+  end
+  config.ssh.shell = "bash -c 'BASH_ENV=/etc/profile exec bash'"
+  if Vagrant.has_plugin?("vagrant-hostmanager")
+    config.hostmanager.enabled = true
+    config.hostmanager.manage_host = true
+    config.hostmanager.ignore_private_ip = false
+    config.hostmanager.include_offline = true
+  end
+  if Vagrant.has_plugin?("vagrant-cachier")
+    config.cache.scope = :box
+  end
+  (1..NUMBER_OF_NODES).each do |i|
+    config.vm.define "node#{i}", primary: true do |node|
+      node.vm.hostname= "node#{i}"
+      node.vm.network :private_network, ip: "10.0.0.#{i.to_i * 10}"
+      node.vm.provision "ansible" do |ansible|
+        ansible.playbook = "playbook.yaml"
+      end
+    end
+  end
+  config.trigger.after :up, :vm => [/node[2-9]/], :stdout => true do
+    run_remote "sudo /usr/sbin/rabbitmqctl cluster_status"
+    run_remote "sudo /usr/sbin/rabbitmqctl stop_app"
+    run_remote "sudo /usr/sbin/rabbitmqctl join_cluster rabbit@node1"
+    run_remote "sudo /usr/sbin/rabbitmqctl start_app"
+    run_remote "sudo /usr/sbin/rabbitmqctl cluster_status"
+  end
+  config.trigger.after :up, :vm => [/node1/], :stdout => true do
+    run_remote "sudo /usr/sbin/rabbitmqctl set_policy HA '^(?!amq\.).*' '{\"ha-mode\": \"all\"}'"
+  end
+end
