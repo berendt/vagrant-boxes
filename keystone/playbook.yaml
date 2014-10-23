@@ -1,0 +1,96 @@
+- hosts: all
+  sudo: True
+
+  vars:
+    release: Juno
+    distribution: openSUSE_13.2
+    keystone_init:
+      OS_SERVICE_TOKEN: password
+      OS_SERVICE_ENDPOINT: http://localhost:35357/v2.0
+    keystone_admin:
+      OS_TENANT_NAME: admin
+      OS_USERNAME: admin
+      OS_PASSWORD: password
+      OS_AUTH_URL: http://localhost:35357/v2.0
+
+  tasks:
+  - command: rpm --import http://download.opensuse.org/repositories/Cloud:/OpenStack:/{{ release }}/{{ distribution }}/repodata/repomd.xml.key
+  - command: zypper addrepo -f obs://Cloud:OpenStack:{{ release }}/{{ distribution }} {{ release }}
+             creates=/etc/zypp/repos.d/{{ release }}.repo
+  - command: zypper addrepo -f obs://Cloud:OpenStack:{{ release }}:Staging/{{ distribution }} {{ release }}_Staging
+             creates=/etc/zypp/repos.d/{{ release }}_Staging.repo
+  - command: zypper ref creates=/tmp/ansible_zypper_refresh.log
+    environment:
+      ZYPP_LOGFILE: /tmp/ansible_zypper_refresh.log
+  - command: zypper up -y creates=/tmp/ansible_zypper_update.log
+    environment:
+      ZYPP_LOGFILE: /tmp/ansible_zypper_update.log
+  - zypper: name=ntp state=present
+  - copy: src=files/ntp.conf dest=/etc/ntp.conf
+  - service: name=ntpd state=restarted enabled=yes
+
+  - zypper: name=mariadb-client state=present
+  - zypper: name=mariadb state=present
+  - zypper: name=python-mysql state=present
+  - zypper: name=expect state=present
+  - copy: src=files/my.cnf dest=/etc/my.cnf
+  - service: name=mysql state=restarted enabled=yes
+  - copy: src=files/mysql_secure_installation.sh
+          dest=/root/mysql_secure_installation.sh
+          mode=0755
+  - command: /root/mysql_secure_installation.sh
+             creates=/tmp/mysql_secure_installation.done
+  - copy: src=files/client.my.cnf dest=/root/.my.cnf
+
+  - mysql_db: name=keystone state=absent
+  - mysql_db: name=keystone state=present
+  - mysql_user: name=keystone password=password host=localhost priv=keystone.*:ALL state=present
+  - mysql_user: name=keysotne password=password host=% priv=keystone.*:ALL state=present
+
+  - zypper: name=openstack-keystone state=present
+  - zypper: name=python-keystoneclient state=present
+  - command: keystone-manage pki_setup --keystone-user keystone --keystone-group keystone
+             creates=/etc/keystone/ssl/certs/01.pem
+  - file: path=/etc/keystone/ssl owner=keystone group=keystone mode=750 state=directory recurse=yes
+  - file: path=/var/log/keystone owner=keystone group=keystone mode=750 state=directory recurse=yes
+
+  - ini_file: dest=/etc/keystone/keystone.conf
+              section=DEFAULT
+              option=admin_token
+              value=password
+
+  - ini_file: dest=/etc/keystone/keystone.conf
+              section=database
+              option=connection
+              value=mysql://keystone:password@localhost/keystone
+
+  - ini_file: dest=/etc/keystone/keystone.conf
+              section=DEFAULT
+              option=verbose
+              value=True
+
+  - ini_file: dest=/etc/keystone/keystone.conf
+              section=DEFAULT
+              option=debug
+              value=True
+
+  - command: su -s /bin/sh -c "keystone-manage db_sync" keystone
+  - service: name=openstack-keystone state=restarted enabled=yes
+
+  - shell: keystone tenant-create --name admin --description "Admin Tenant"
+    environment: keystone_init
+  - shell: keystone user-create --name admin --pass password
+    environment: keystone_init
+  - shell: keystone role-create --name admin
+    environment: keystone_init
+  - shell: keystone user-role-add --tenant admin --user admin --role admin
+    environment: keystone_init
+  - shell: keystone tenant-create --name service --description "Service Tenant"
+    environment: keystone_init
+  - shell: keystone service-create --name keystone --type identity --description "OpenStack Identity"
+    environment: keystone_init
+  - shell: keystone endpoint-create --service-id $(keystone service-list | awk '/ identity / {print $2}') --publicurl http://localhost:5000/v2.0 --internalurl http://localhost:5000/v2.0 --adminurl http://localhost:35357/v2.0 --region regionOne
+    environment: keystone_init
+
+  - copy: src=files/admin-openrc.sh dest=/home/vagrant/admin-openrc.sh owner=vagrant group=users mode=0644
+  - shell: (crontab -l -u keystone 2>&1 | grep -q token_flush) || echo '@hourly /usr/bin/keystone-manage token_flush >/var/log/keystone/keystone-tokenflush.log 2>&1' > /var/spool/cron/tabs/keystone
