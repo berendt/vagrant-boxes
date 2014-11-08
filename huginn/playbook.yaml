@@ -1,0 +1,36 @@
+- hosts: all
+  tasks:
+  - command: yum update -y
+    sudo: True
+  - yum: name={{ item }} state=present
+    sudo: True
+    with_items:
+      - MySQL-python
+      - gcc
+      - gcc-c++
+      - git
+      - graphviz
+      - mariadb-devel
+      - mariadb-server
+      - patch 
+      - ruby-devel
+      - rubygem-bundler
+      - rubygem-rake
+  - service: name=mariadb state=started enabled=yes
+    sudo: True
+  - mysql_user: name=root host={{ item }} password=password priv=*.*:ALL,GRANT
+    with_items:
+      - "{{ ansible_hostname }}"
+      - 127.0.0.1
+      - ::1
+      - localhost
+  - copy: src=files/my.cnf dest=/home/vagrant/.my.cnf mode=0644
+  - mysql_db: name=huginn state=present
+  - mysql_user: name=huginn password=password priv=*.*:ALL,GRANT state=present
+  - git: repo=https://github.com/cantino/huginn.git
+         dest=/home/vagrant/huginn
+  - command: bundle chdir=/home/vagrant/huginn
+  - copy: src=files/env dest=/home/vagrant/huginn/.env mode=0600
+  - command: rake db:create chdir=/home/vagrant/huginn
+  - command: rake db:migrate chdir=/home/vagrant/huginn
+  - command: rake db:seed chdir=/home/vagrant/huginn
