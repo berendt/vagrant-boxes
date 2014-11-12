@@ -36,28 +36,28 @@ Vagrant.configure(2) do |config|
     node.vm.hostname= "node001"
     node.vm.network :private_network, ip: '10.0.20.100'
     node.vm.network :private_network, ip: '10.0.20.101'
-    node.vm.network :private_network, ip: '10.0.20.102'
-    node.vm.network :private_network, ip: '10.0.20.103'
+    node.vm.network :private_network, ip: '10.0.20.102', auto_config: false
+    node.vm.network :private_network, ip: '10.0.20.103', auto_config: false
   end
   config.vm.define "node002" do |node|
     node.vm.hostname= "node002"
     node.vm.network :private_network, ip: '10.0.20.110'
     node.vm.network :private_network, ip: '10.0.20.111'
-    node.vm.network :private_network, ip: '10.0.20.112'
-    node.vm.network :private_network, ip: '10.0.20.113'
+    node.vm.network :private_network, ip: '10.0.20.112', auto_config: false
+    node.vm.network :private_network, ip: '10.0.20.113', auto_config: false
   end
   config.vm.define "node003" do |node|
     node.vm.hostname= "node003"
     node.vm.network :private_network, ip: '10.0.20.120'
     node.vm.network :private_network, ip: '10.0.20.121'
-    node.vm.network :private_network, ip: '10.0.20.122'
-    node.vm.network :private_network, ip: '10.0.20.123'
+    node.vm.network :private_network, ip: '10.0.20.122', auto_config: false
+    node.vm.network :private_network, ip: '10.0.20.123', auto_config: false
   end
   config.vm.define "node004" do |node|
     node.vm.hostname= "node004"
     node.vm.network :private_network, ip: '10.0.20.130'
     node.vm.network :private_network, ip: '10.0.20.131'
-    node.vm.network :private_network, ip: '10.0.20.132'
-    node.vm.network :private_network, ip: '10.0.20.133'
+    node.vm.network :private_network, ip: '10.0.20.132', auto_config: false
+    node.vm.network :private_network, ip: '10.0.20.133', auto_config: false
   end
 end
