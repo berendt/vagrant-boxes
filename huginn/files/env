@@ -127,7 +127,7 @@ ALLOW_JSONPATH_EVAL=false
 
 # Enable this setting to allow insecure Agents like the ShellCommandAgent.  Only do this
 # when you trust everyone using your Huginn installation.
-ENABLE_INSECURE_AGENTS=false
+ENABLE_INSECURE_AGENTS=true
 
 # Enable this setting to allow second precision schedule in
 # SchedulerAgent.  By default, the use of the "second" field is
