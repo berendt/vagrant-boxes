@@ -1,0 +1,65 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+
+BOX = "box-cutter/debian77"
+
+Vagrant.configure(2) do |config|
+  config.vm.box = BOX
+  config.vm.provision "shell", path: "initialize.sh"
+  config.vm.provider "virtualbox" do |vb|
+    vb.customize ["modifyvm", :id, "--memory", "8192"]
+    vb.customize ["modifyvm", :id, "--cpus", "2"]
+  end
+  config.ssh.shell = "bash -c 'BASH_ENV=/etc/profile exec bash'"
+  if Vagrant.has_plugin?("vagrant-cachier")
+    config.cache.scope = :box
+  end
+  if Vagrant.has_plugin?("vagrant-hostmanager")
+    config.hostmanager.enabled = true
+    config.hostmanager.manage_host = true
+    config.hostmanager.ignore_private_ip = false
+    config.hostmanager.include_offline = true
+  end
+  config.vm.define "node001" do |node|
+    node.vm.hostname= "node001"
+    node.vm.network :private_network, ip: '10.0.20.100'
+    node.vm.provider "virtualbox" do |vb|
+      vb.customize ['createhd', '--filename', 'node001.vdi', '--size', 16384]
+      vb.customize ['storageattach', :id, '--storagectl', 'IDE Controller', '--port', 1, '--device', 0, '--type', 'hdd', '--medium', 'node001.vdi']
+    end
+  end
+  config.vm.define "node002" do |node|
+    node.vm.hostname= "node002"
+    node.vm.network :private_network, ip: '10.0.20.110'
+    node.vm.provider "virtualbox" do |vb|
+      vb.customize ['createhd', '--filename', 'node002.vdi', '--size', 16384]
+      vb.customize ['storageattach', :id, '--storagectl', 'IDE Controller', '--port', 1, '--device', 0, '--type', 'hdd', '--medium', 'node002.vdi']
+    end
+  end
+  config.vm.define "node003" do |node|
+    node.vm.hostname= "node003"
+    node.vm.network :private_network, ip: '10.0.20.120'
+    node.vm.provider "virtualbox" do |vb|
+      vb.customize ['createhd', '--filename', 'node003.vdi', '--size', 16384]
+      vb.customize ['storageattach', :id, '--storagectl', 'IDE Controller', '--port', 1, '--device', 0, '--type', 'hdd', '--medium', 'node003.vdi']
+    end
+  end
+  config.vm.define "node004", primary: true do |node|
+    node.vm.hostname= "node004"
+    node.vm.network :private_network, ip: '10.0.20.130'
+    node.vm.provision "file", source: "bootstrap.sh", destination: "bootstrap.sh"
+    #node.vm.provision "shell", path: "bootstrap.sh"
+  end
+end
