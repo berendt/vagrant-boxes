@@ -1,0 +1,2 @@
+---
+- lvg:  vg=cinder-volumes pvs=/dev/sdb pesize=32 force=yes

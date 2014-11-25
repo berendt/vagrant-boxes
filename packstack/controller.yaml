@@ -1,0 +1,18 @@
+---
+- command: yum install -y https://rdo.fedorapeople.org/rdo-release.rpm
+           creates=/etc/yum.repos.d/rdo-release.repo
+- command: yum install -y http://yum.puppetlabs.com/puppetlabs-release-el-7.noarch.rpm
+           creates=/etc/yum.repos.d/puppetlabs.repo
+- yum: name=git state=present
+- git: repo=https://github.com/stackforge/packstack
+       dest=/opt/packstack
+- copy: src=files/packstack.answers dest=/home/vagrant/packstack.answers owner=vagrant group=vagrant
+- copy: src=files/patch.sh dest=/home/vagrant/patch.sh owner=vagrant group=vagrant mode=0755
+#- command: python setup.py install
+#           chdir=/opt/packstack
+#- command: python setup.py install_puppet_modules
+#           chdir=/opt/packstack
+#- yum: name=openstack-packstack state=present
+- copy: src=files/openrc dest=/home/vagrant/openrc owner=vagrant group=vagrant mode=0644
+- filesystem: fstype=xfs dev=/dev/sdb force=yes
+- filesystem: fstype=xfs dev=/dev/sdc force=yes
