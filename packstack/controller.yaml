@@ -14,5 +14,6 @@
 #           chdir=/opt/packstack
 #- yum: name=openstack-packstack state=present
 - copy: src=files/openrc dest=/home/vagrant/openrc owner=vagrant group=vagrant mode=0644
+- copy: src=files/setpu.sh dest=/home/vagrant/setup.sh owner=vagrant group=vagrant mode=0755
 - filesystem: fstype=xfs dev=/dev/sdb force=yes
 - filesystem: fstype=xfs dev=/dev/sdc force=yes
