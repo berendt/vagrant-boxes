@@ -7,7 +7,6 @@
 - git: repo=https://github.com/stackforge/packstack
        dest=/opt/packstack
 - copy: src=files/packstack.answers dest=/home/vagrant/packstack.answers owner=vagrant group=vagrant
-- copy: src=files/patch.sh dest=/home/vagrant/patch.sh owner=vagrant group=vagrant mode=0755
 #- command: python setup.py install
 #           chdir=/opt/packstack
 #- command: python setup.py install_puppet_modules
