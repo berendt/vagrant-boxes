@@ -14,21 +14,25 @@
 - yum: name=patch state=present
 - copy: src=files/openrc dest=/home/vagrant/openrc owner=vagrant group=vagrant mode=0644
 - lineinfile: dest=/home/vagrant/.bashrc line='source $HOME/openrc'
-- copy: src=files/setup.sh dest=/home/vagrant/setup.sh owner=vagrant group=vagrant mode=0755
-- copy: src=files/initialize.sh dest=/home/vagrant/initialize.sh mode=0755 owner=vagrant group=vagrant
+- copy: src=files/setup.sh dest=/home/vagrant/scripts/setup.sh owner=vagrant group=vagrant mode=0755
+- copy: src=files/initialize.sh dest=/home/vagrant/scripts/initialize.sh mode=0755 owner=vagrant group=vagrant
 - filesystem: fstype=xfs dev=/dev/sdb force=yes
 - filesystem: fstype=xfs dev=/dev/sdc force=yes
 
+- file: path=/home/vagrant/answers state=directory owner=vagrant group=vagrant mode=0755
+
 - set_fact: exclude_servers=""
-- template: src=files/packstack.answers.j2 dest=/home/vagrant/packstack.answers owner=vagrant group=vagrant
+- template: src=files/packstack.answers.j2 dest=/home/vagrant/answers/packstack.answers owner=vagrant group=vagrant
 
 - set_fact: exclude_servers="10.10.0.20,10.10.0.21,10.10.0.30"
-- template: src=files/packstack.answers.j2 dest=/home/vagrant/controller.answers owner=vagrant group=vagrant
+- template: src=files/packstack.answers.j2 dest=/home/vagrant/answers/controller.answers owner=vagrant group=vagrant
 
 - set_fact: exclude_servers="10,10.0.10,10.10.0.30"
-- template: src=files/packstack.answers.j2 dest=/home/vagrant/compute.answers owner=vagrant group=vagrant
+- template: src=files/packstack.answers.j2 dest=/home/vagrant/answers/compute.answers owner=vagrant group=vagrant
 
 - set_fact: exclude_servers="10,10.0.10,10.10.0.20,10.10.0.21"
-- template: src=files/packstack.answers.j2 dest=/home/vagrant/network.answers owner=vagrant group=vagrant
+- template: src=files/packstack.answers.j2 dest=/home/vagrant/answers/network.answers owner=vagrant group=vagrant
 
 - copy: src=patches dest=/home/vagrant owner=vagrant group=vagrant mode=0644
+- patch: patchfile=/home/vagrant/patches/mongodb.pp basedir=/ strip=1
+- patch: patchfile=/home/vagrant/patches/nova_compute_libvirt.pp basedir=/ strip=1
