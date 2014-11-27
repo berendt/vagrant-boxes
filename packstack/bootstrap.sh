@@ -2,6 +2,10 @@
 
 set -x
 
+for plugin in vagrant-sandbox vagrant-hostmanager; do
+(vagrant plugin list | grep $plugin) || vagrant plugin install $plugin
+done
+
 vagrant up
 vagrant reload
 vagrant sandbox on
