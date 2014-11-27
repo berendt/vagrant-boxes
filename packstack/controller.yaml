@@ -6,14 +6,28 @@
 - yum: name=git state=present
 - git: repo=https://github.com/stackforge/packstack
        dest=/opt/packstack
-- copy: src=files/packstack.answers dest=/home/vagrant/packstack.answers owner=vagrant group=vagrant
 #- command: python setup.py install
 #           chdir=/opt/packstack
 #- command: python setup.py install_puppet_modules
 #           chdir=/opt/packstack
-#- yum: name=openstack-packstack state=present
+- yum: name=openstack-packstack state=present
 - copy: src=files/openrc dest=/home/vagrant/openrc owner=vagrant group=vagrant mode=0644
 - copy: src=files/setup.sh dest=/home/vagrant/setup.sh owner=vagrant group=vagrant mode=0755
 - copy: src=files/initialize.sh dest=/home/vagrant/initialize.sh mode=0755 owner=vagrant group=vagrant
 - filesystem: fstype=xfs dev=/dev/sdb force=yes
 - filesystem: fstype=xfs dev=/dev/sdc force=yes
+
+- set_fact: exclude_servers=""
+- template: src=files/packstack.answers.j2 dest=/home/vagrant/packstack.answers owner=vagrant group=vagrant
+
+- set_fact: exclude_servers="10.10.0.20,10.10.0.21,10.10.0.30,10.10.0.40"
+- template: src=files/packstack.answers.j2 dest=/home/vagrant/controller.answers owner=vagrant group=vagrant
+
+- set_fact: exclude_servers="10,10.0.10,10.10.0.30,10.10.0.40"
+- template: src=files/packstack.answers.j2 dest=/home/vagrant/compute.answers owner=vagrant group=vagrant
+
+- set_fact: exclude_servers="10,10.0.10,10.10.0.20,10.10.0.21,10.10.0.40"
+- template: src=files/packstack.answers.j2 dest=/home/vagrant/network.answers owner=vagrant group=vagrant
+
+- set_fact: exclude_servers="10,10.0.10,10.10.0.20,10.10.0.21,10.10.0.30"
+- template: src=files/packstack.answers.j2 dest=/home/vagrant/storage.answers owner=vagrant group=vagrant

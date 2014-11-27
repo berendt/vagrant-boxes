@@ -62,7 +62,7 @@ CONFIG_NAGIOS_INSTALL=y
 # case you are running Packstack the second time with the same answer
 # file and don't want Packstack to touch these servers. Leave plain if
 # you don't need to exclude any server.
-EXCLUDE_SERVERS=
+EXCLUDE_SERVERS={{ exclude_servers }}
 
 # Set to 'y' if you want to run OpenStack services in debug mode.
 # Otherwise set to 'n'.
