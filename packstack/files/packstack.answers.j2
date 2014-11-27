@@ -104,7 +104,7 @@ CONFIG_VCENTER_CLUSTER_NAME=
 # (Unsupported!) The IP address of the server on which to install
 # OpenStack services specific to storage servers such as Glance and
 # Cinder.
-CONFIG_STORAGE_HOST=10.10.0.40
+CONFIG_STORAGE_HOST=10.10.0.10
 
 # To subscribe each server to EPEL enter "y"
 CONFIG_USE_EPEL=n
@@ -258,12 +258,12 @@ CONFIG_CINDER_KS_PW=password
 
 # The Cinder backend to use, valid options are: lvm, gluster, nfs,
 # netapp
-CONFIG_CINDER_BACKEND=lvm
+CONFIG_CINDER_BACKEND=nfs
 
 # Create Cinder's volumes group. This should only be done for testing
 # on a proof-of-concept installation of Cinder. This will create a
 # file-backed volume group and is not suitable for production usage.
-CONFIG_CINDER_VOLUMES_CREATE=n
+CONFIG_CINDER_VOLUMES_CREATE=y
 
 # Cinder's volumes group size. Note that actual volume size will be
 # extended with 3% more space for VG metadata.
@@ -275,7 +275,7 @@ CONFIG_CINDER_GLUSTER_MOUNTS=
 
 # A single or comma seprated list of NFS exports to mount, eg: ip-
 # address:/export-name
-CONFIG_CINDER_NFS_MOUNTS=
+CONFIG_CINDER_NFS_MOUNTS=10.10.0.40:/export
 
 # (required) Administrative user account name used to access the
 # storage system or proxy server.

@@ -1,2 +1,10 @@
 ---
-- lvg:  vg=cinder-volumes pvs=/dev/sdb pesize=32 force=yes
+- apt: update_cache=yes
+- apt: upgrade=full
+- apt: name=nfs-kernel-server state=present
+- apt: name=xfsprogs state=present
+- filesystem: fstype=xfs dev=/dev/sdb force=yes
+- mount: name=/export src='/dev/sdb' fstype=xfs state=mounted
+- copy: src=files/exports dest=/etc/exports mode=0644 owner=root group=root
+- service: name=nfs-kernel-server state=restarted enabled=yes
+- command: exportfs -a

@@ -1,9 +1,12 @@
 ---
 - yum: name=deltarpm state=present
+  when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux'
 - command: yum update -y
+  when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux'
 - copy: src=files/id_rsa dest=/home/vagrant/.ssh/id_rsa mode=0600 owner=vagrant group=vagrant
 - copy: src=files/id_rsa.pub dest=/home/vagrant/.ssh/id_rsa.pub mode=0600 owner=vagrant group=vagrant
 - copy: src=files/selinux dest=/etc/selinux/config mode=0644 owner=root group=root
 - copy: src=files/disable_network_manager.sh dest=/home/vagrant/disable_network_manager.sh mode=0755 owner=vagrant group=vagrant
+  when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux'
 - shell: cat /home/vagrant/.ssh/id_rsa.pub >> /home/vagrant/.ssh/authorized_keys
 - file: path=/home/vagrant/.ssh/authorized_keys owner=vagrant group=vagrant
