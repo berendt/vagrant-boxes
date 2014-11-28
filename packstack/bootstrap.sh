@@ -9,5 +9,5 @@ done
 vagrant up
 vagrant reload
 vagrant sandbox on
-vagrant ssh controller -c '/home/vagrant/initialize.sh'
+vagrant ssh controller -c '/home/vagrant/scripts/initialize.sh'
 vagrant sandbox commit controller
