@@ -1,7 +1,7 @@
 ---
 - yum: name=deltarpm state=present
   when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux'
-- command: yum update -y
+- yum: name=* state=latest
   when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux'
 - copy: src=files/id_rsa dest=/home/vagrant/.ssh/id_rsa mode=0600 owner=vagrant group=vagrant
 - copy: src=files/id_rsa.pub dest=/home/vagrant/.ssh/id_rsa.pub mode=0600 owner=vagrant group=vagrant

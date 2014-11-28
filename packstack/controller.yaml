@@ -1,8 +1,8 @@
 ---
-- command: yum install -y https://rdo.fedorapeople.org/rdo-release.rpm
-           creates=/etc/yum.repos.d/rdo-release.repo
-- command: yum install -y http://yum.puppetlabs.com/puppetlabs-release-el-7.noarch.rpm
-           creates=/etc/yum.repos.d/puppetlabs.repo
+- yum: name=https://rdo.fedorapeople.org/rdo-release.rpm state=present
+#           creates=/etc/yum.repos.d/rdo-release.repo
+- yum: name=http://yum.puppetlabs.com/puppetlabs-release-el-7.noarch.rpm state=present
+#           creates=/etc/yum.repos.d/puppetlabs.repo
 - yum: name=git state=present
 - git: repo=https://github.com/stackforge/packstack
        dest=/opt/packstack
