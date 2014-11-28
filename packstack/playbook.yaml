@@ -1,8 +1,9 @@
 - hosts: all
   sudo: True
   tasks:
+  - include_vars: config.yaml
   - include: initialize.yaml
   - include: controller.yaml
     when: inventory_hostname_short == 'controller'
-  - include: storage.yaml
-    when: inventory_hostname_short == 'storage'
+  - include: filer.yaml
+    when: inventory_hostname_short == 'filer'

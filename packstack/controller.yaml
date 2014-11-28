@@ -1,8 +1,6 @@
 ---
 - yum: name=https://rdo.fedorapeople.org/rdo-release.rpm state=present
-#           creates=/etc/yum.repos.d/rdo-release.repo
 - yum: name=http://yum.puppetlabs.com/puppetlabs-release-el-7.noarch.rpm state=present
-#           creates=/etc/yum.repos.d/puppetlabs.repo
 - yum: name=git state=present
 - git: repo=https://github.com/stackforge/packstack
        dest=/opt/packstack
@@ -24,14 +22,20 @@
 - set_fact: exclude_servers=""
 - template: src=files/packstack.answers.j2 dest=/home/vagrant/answers/packstack.answers owner=vagrant group=vagrant
 
-- set_fact: exclude_servers="10.10.0.20,10.10.0.21,10.10.0.30"
+- set_fact: exclude_servers="{{ compute }},{{ network }},{{ storage }},{{ shared }}"
 - template: src=files/packstack.answers.j2 dest=/home/vagrant/answers/controller.answers owner=vagrant group=vagrant
 
-- set_fact: exclude_servers="10,10.0.10,10.10.0.30"
+- set_fact: exclude_servers="{{ controller }},{{ network }},{{ storage }},{{ shared }}"
 - template: src=files/packstack.answers.j2 dest=/home/vagrant/answers/compute.answers owner=vagrant group=vagrant
 
-- set_fact: exclude_servers="10,10.0.10,10.10.0.20,10.10.0.21"
+- set_fact: exclude_servers="{{ controller }},{{ compute }},{{ storage }},{{ shared }}"
 - template: src=files/packstack.answers.j2 dest=/home/vagrant/answers/network.answers owner=vagrant group=vagrant
+
+- set_fact: exclude_servers="{{ controller }},{{ compute }},{{ network }},{{ shared }}"
+- template: src=files/packstack.answers.j2 dest=/home/vagrant/answers/storage.answers owner=vagrant group=vagrant
+
+- set_fact: exclude_servers="{{ controller }},{{ compute }},{{ network }},{{ storage }}"
+- template: src=files/packstack.answers.j2 dest=/home/vagrant/answers/shared.answers owner=vagrant group=vagrant
 
 - copy: src=patches dest=/home/vagrant owner=vagrant group=vagrant mode=0644
 - patch: patchfile=/home/vagrant/patches/mongodb.pp basedir=/ strip=1

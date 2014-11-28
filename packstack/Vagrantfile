@@ -14,8 +14,6 @@
 # under the License.
 
 BOX = "chef/centos-7.0"
-#BOX = "box-cutter/fedora21"
-#BOX = "box-cutter/fedora20"
 
 Vagrant.configure(2) do |config|
   config.vm.box = BOX
@@ -23,9 +21,6 @@ Vagrant.configure(2) do |config|
     vb.customize ["modifyvm", :id, "--memory", "8192"]
     vb.customize ["modifyvm", :id, "--cpus", "4"]
   end
-#  if Vagrant.has_plugin?("vagrant-cachier")
-#    config.cache.scope = :box
-#  end
   if Vagrant.has_plugin?("vagrant-hostmanager")
     config.hostmanager.enabled = true
     config.hostmanager.manage_host = true
@@ -58,17 +53,33 @@ Vagrant.configure(2) do |config|
     end
   end
   config.vm.define "storage" do |node|
-    node.ssh.shell = "bash -c 'BASH_ENV=/etc/profile exec bash'"
-    node.vm.box = 'ubuntu/trusty64'
     node.vm.hostname= "storage"
     node.vm.network :private_network, ip: '10.10.0.40'
     node.vm.network :private_network, ip: '10.0.0.40', virtualbox__intnet: "tunnel"
     node.vm.provision "ansible" do |ansible|
       ansible.playbook = "playbook.yaml"
     end
+  end
+  config.vm.define "filer" do |node|
+    node.ssh.shell = "bash -c 'BASH_ENV=/etc/profile exec bash'"
+    node.vm.box = 'ubuntu/trusty64'
+    node.vm.hostname= "filer"
+    node.vm.network :private_network, ip: '10.10.0.41'
+    node.vm.network :private_network, ip: '10.0.0.41', virtualbox__intnet: "tunnel"
+    node.vm.provision "ansible" do |ansible|
+      ansible.playbook = "playbook.yaml"
+    end
     node.vm.provider "virtualbox" do |vb|
       vb.customize ['createhd', '--filename', 'dcd3ac98.vdi', '--size', 65536]
       vb.customize ['storageattach', :id, '--storagectl', 'SATAController', '--port', 1, '--device', 0, '--type', 'hdd', '--medium', 'dcd3ac98.vdi']
+    end
+  end
+  config.vm.define "shared" do |node|
+    node.vm.hostname= "shared"
+    node.vm.network :private_network, ip: '10.10.0.50'
+    node.vm.network :private_network, ip: '10.0.0.50', virtualbox__intnet: "tunnel"
+    node.vm.provision "ansible" do |ansible|
+      ansible.playbook = "playbook.yaml"
     end
   end
   config.vm.define "controller", primary: true do |node|
