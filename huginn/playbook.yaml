@@ -1,6 +1,6 @@
 - hosts: all
   tasks:
-  - command: yum update -y
+  - yum: name=* state=latest
     sudo: True
   - yum: name={{ item }} state=present
     sudo: True
