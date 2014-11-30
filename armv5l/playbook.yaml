@@ -1,0 +1,9 @@
+- hosts: all
+  tasks:
+  - yum: name=* state=latest
+    sudo: True
+  - get_url: url=http://landley.net/aboriginal/downloads/binaries/cross-compiler-armv5l.tar.bz2 dest=/home/vagrant mode=0644
+  - command: tar xjf cross-compiler-armv5l.tar.bz2 creates=/home/vagrant/cross-compiler-armv5l
+  - copy: src={{ item }} dest=/home/vagrant mode=0755
+    with_fileglob:
+    - scripts/*
