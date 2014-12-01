@@ -4,12 +4,14 @@
 - yum: name=git state=present
 - git: repo=https://github.com/stackforge/packstack
        dest=/opt/packstack
-#- command: python setup.py install
-#           chdir=/opt/packstack
-#- command: python setup.py install_puppet_modules
-#           chdir=/opt/packstack
+- command: python setup.py install
+           chdir=/opt/packstack
+  when: development
+- command: python setup.py install_puppet_modules
+           chdir=/opt/packstack
+  when: development
 - yum: name=openstack-packstack state=present
-- yum: name=patch state=present
+  when: not development
 - copy: src=files/openrc dest=/home/vagrant/openrc owner=vagrant group=vagrant mode=0644
 - lineinfile: dest=/home/vagrant/.bashrc line='source $HOME/openrc'
 - copy: src=files/setup.sh dest=/home/vagrant/scripts/setup.sh owner=vagrant group=vagrant mode=0755
@@ -37,6 +39,11 @@
 - set_fact: exclude_servers="{{ controller }},{{ compute }},{{ network }},{{ storage }}"
 - template: src=files/packstack.answers.j2 dest=/home/vagrant/answers/shared.answers owner=vagrant group=vagrant
 
+- yum: name=patch state=present
+  when: development
 - copy: src=patches dest=/home/vagrant owner=vagrant group=vagrant mode=0644
+  when: not development
 - patch: patchfile=/home/vagrant/patches/mongodb.pp basedir=/ strip=1
+  when: not development
 - patch: patchfile=/home/vagrant/patches/nova_compute_libvirt.pp basedir=/ strip=1
+  when: not development

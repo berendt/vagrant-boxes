@@ -1,4 +1,5 @@
 ---
+development: false
 compute: '10.100.50.20,10.100.50.21'
 controller: '10.100.50.10'
 filer: '10.100.50.41'
