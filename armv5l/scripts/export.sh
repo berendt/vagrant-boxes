@@ -3,4 +3,6 @@
 cd $HOME/build
 cp -Pv $HOME/cross-compiler-armv5l/bin/* $HOME/build/bin/
 cp -Pv $HOME/cross-compiler-armv5l/lib/* $HOME/build/lib/
-tar cvzf /vagrant/filetree.tar.gz *
+for dir in $(ls -1); do
+    tar cvf /vagrant/$dir.tar $dir
+done
