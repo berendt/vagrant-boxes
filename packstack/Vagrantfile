@@ -14,6 +14,7 @@
 # under the License.
 
 BOX = "chef/centos-7.0"
+BRIDGE = "tap0"
 
 Vagrant.configure(2) do |config|
   config.vm.box = BOX
@@ -30,32 +31,28 @@ Vagrant.configure(2) do |config|
   config.vm.synced_folder '.', '/vagrant', disabled: true
   config.vm.define "compute001" do |node|
     node.vm.hostname= "compute001"
-    node.vm.network :private_network, ip: '10.10.0.20'
-    node.vm.network :private_network, ip: '10.0.0.20', virtualbox__intnet: "tunnel"
+    node.vm.network :public_network, ip: '10.100.50.20', netmask: '255.255.0.0', bridge: BRIDGE
     node.vm.provision "ansible" do |ansible|
       ansible.playbook = "playbook.yaml"
     end
   end
   config.vm.define "compute002" do |node|
     node.vm.hostname= "compute002"
-    node.vm.network :private_network, ip: '10.10.0.21'
-    node.vm.network :private_network, ip: '10.0.0.21', virtualbox__intnet: "tunnel"
+    node.vm.network :public_network, ip: '10.100.50.21', netmask: '255.255.0.0', bridge: BRIDGE
     node.vm.provision "ansible" do |ansible|
       ansible.playbook = "playbook.yaml"
     end
   end
   config.vm.define "network" do |node|
     node.vm.hostname= "network"
-    node.vm.network :private_network, ip: '10.10.0.30'
-    node.vm.network :private_network, ip: '10.0.0.30', virtualbox__intnet: "tunnel"
+    node.vm.network :public_network, ip: '10.100.50.30', netmask: '255.255.0.0', bridge: BRIDGE
     node.vm.provision "ansible" do |ansible|
       ansible.playbook = "playbook.yaml"
     end
   end
   config.vm.define "storage" do |node|
     node.vm.hostname= "storage"
-    node.vm.network :private_network, ip: '10.10.0.40'
-    node.vm.network :private_network, ip: '10.0.0.40', virtualbox__intnet: "tunnel"
+    node.vm.network :public_network, ip: '10.100.50.40', netmask: '255.255.0.0', bridge: BRIDGE
     node.vm.provision "ansible" do |ansible|
       ansible.playbook = "playbook.yaml"
     end
@@ -64,8 +61,7 @@ Vagrant.configure(2) do |config|
     node.ssh.shell = "bash -c 'BASH_ENV=/etc/profile exec bash'"
     node.vm.box = 'ubuntu/trusty64'
     node.vm.hostname= "filer"
-    node.vm.network :private_network, ip: '10.10.0.41'
-    node.vm.network :private_network, ip: '10.0.0.41', virtualbox__intnet: "tunnel"
+    node.vm.network :public_network, ip: '10.100.50.41', netmask: '255.255.0.0', bridge: BRIDGE
     node.vm.provision "ansible" do |ansible|
       ansible.playbook = "playbook.yaml"
     end
@@ -76,16 +72,14 @@ Vagrant.configure(2) do |config|
   end
   config.vm.define "shared" do |node|
     node.vm.hostname= "shared"
-    node.vm.network :private_network, ip: '10.10.0.50'
-    node.vm.network :private_network, ip: '10.0.0.50', virtualbox__intnet: "tunnel"
+    node.vm.network :public_network, ip: '10.100.50.50', netmask: '255.255.0.0', bridge: BRIDGE
     node.vm.provision "ansible" do |ansible|
       ansible.playbook = "playbook.yaml"
     end
   end
   config.vm.define "controller", primary: true do |node|
     node.vm.hostname= "controller"
-    node.vm.network :private_network, ip: '10.10.0.10'
-    node.vm.network :private_network, ip: '10.0.0.10', virtualbox__intnet: "tunnel"
+    node.vm.network :public_network, ip: '10.100.50.10', netmask: '255.255.0.0', bridge: BRIDGE
     node.vm.provision "ansible" do |ansible|
       ansible.playbook = "playbook.yaml"
     end
