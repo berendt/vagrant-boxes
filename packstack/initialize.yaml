@@ -18,3 +18,4 @@
   when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux'
 - shell: cat /home/vagrant/.ssh/id_rsa.pub >> /home/vagrant/.ssh/authorized_keys
 - file: path=/home/vagrant/.ssh/authorized_keys owner=vagrant group=vagrant
+- copy: src=files/motd dest=/etc/motd owner=root group=root mode=0644
