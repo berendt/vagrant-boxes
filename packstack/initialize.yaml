@@ -19,3 +19,4 @@
 - shell: cat /home/vagrant/.ssh/id_rsa.pub >> /home/vagrant/.ssh/authorized_keys
 - file: path=/home/vagrant/.ssh/authorized_keys owner=vagrant group=vagrant
 - copy: src=files/motd dest=/etc/motd owner=root group=root mode=0644
+- template: src=files/hosts.j2 dest=/etc/hosts owner=root group=root mode=0644
