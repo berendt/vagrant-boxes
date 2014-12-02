@@ -14,6 +14,8 @@ Additionally you can install the `vagrant-sandbox` plugin to
 
 ## Initialization
 
+Copy the sample configuration file `config.yaml.sample` to `config.yaml` and ajust the file accordingly.
+
 First run the `bootstrap.sh` script to prepare all required nodes.
 
     $ ./scripts/bootstraph.sh
