@@ -6,6 +6,6 @@
 {{ address[name] }} {{ name }}
 {% endfor %}
 {% for ip in address['compute'] %}
-{{ ip }} node{{ loop.index }} 
+{{ ip }} compute{{ loop.index }} 
 {% endfor %}
 # >>> Packstack <<<
