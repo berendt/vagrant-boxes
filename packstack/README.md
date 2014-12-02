@@ -1,19 +1,23 @@
 # Packstack
 
-This is a Vagrant environment providing a Packstack installation. Packstack itself is available at <https://github.com/stackforge/packstack>.
+This is a Vagrant environment providing a Packstack installation on top of CentOS. Packstack itself is available at <https://github.com/stackforge/packstack>.
 
 ## Requirements
 
-To run this Vagrant environment you have to install the following Vagrant plugins:
+The used provisioner is Ansible. To be able to start this Vagrant environment install Ansible on the Vagrant host.
 
-- vagrant-sandbox (`vagrant plugin install vagrant-sandbox`)
+    $ sudo yum install -y ansible
+
+Additionally you can install the `vagrant-sandbox` plugin to 
+
+    $ vagrant plugin install vagrant-sandbox
 
 ## Initialization
 
-First run the `bootstraph.sh` script to prepare all required nodes.
+First run the `bootstrap.sh` script to prepare all required nodes.
 
     $ ./scripts/bootstraph.sh
 
-Afterwards run the following command on the controller node (`vagrant ssh controller`) to deploy OpenStack.
+Afterwards run the following command on the controller node (`vagrant ssh controller`) to deploy OpenStack with Packstack.
 
     $ packstack --answer-file packstack.answers

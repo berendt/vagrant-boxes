@@ -4,6 +4,11 @@ set -x
 
 JOBS=2
 
+has_sandbox_plugin() {
+    vagrant plugin list | grep vagrant-sandbox > /dev/null
+    return $?
+}
+
 run_parallel() {
     python scripts/get_hosts.py | xargs -n 1 -P $JOBS -I BOX sh -c "vagrant $* BOX 2>&1 >> log/BOX.log"
 }
@@ -17,9 +22,14 @@ run_parallel provision
 echo "$(date) reloading all VMs"
 run_parallel reload
 
-echo "$(date) enabling sandbox mode for all VMs"
-run_parallel sandbox on
+if has_sandbox_plugin; then
+    echo "$(date) enabling sandbox mode for all VMs"
+    run_parallel sandbox on
+fi
 
 echo "$(date) initializing the controller node"
 vagrant ssh controller -c '/home/vagrant/scripts/initialize.sh'
-vagrant sandbox commit controller
+
+if has_sandbox_plugin; then
+    vagrant sandbox commit controller
+fi
