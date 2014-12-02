@@ -12,6 +12,8 @@ To run this Vagrant environment you have to install the following Vagrant plugin
 
 First run the `bootstraph.sh` script to prepare all required nodes.
 
+    $ ./scripts/bootstraph.sh
+
 Afterwards run the following command on the controller node (`vagrant ssh controller`) to deploy OpenStack.
 
     $ packstack --answer-file packstack.answers
