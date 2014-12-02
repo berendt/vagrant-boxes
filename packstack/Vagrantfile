@@ -16,6 +16,13 @@
 require 'yaml'
 CONFIG = YAML.load(File.open(File.join(File.dirname(__FILE__), "config.yaml"), File::RDONLY).read)
 
+def add_block_device(node, id, size)
+  node.vm.provider "virtualbox" do |vb|
+    vb.customize ['createhd', '--filename', "#{node.vm.hostname}_#{id}.vdi", '--size', size]
+    vb.customize ['storageattach', :id, '--storagectl', 'IDE Controller', '--port', 1, '--device', id, '--type', 'hdd', '--medium', "#{node.vm.hostname}_#{id}.vdi"]
+  end
+end
+
 Vagrant.configure(2) do |config|
   config.vm.box = CONFIG['box']
   config.vm.synced_folder '.', '/vagrant', disabled: true
@@ -51,10 +58,7 @@ Vagrant.configure(2) do |config|
     node.vm.provision "ansible" do |ansible|
       ansible.playbook = "playbook.yaml"
     end
-    node.vm.provider "virtualbox" do |vb|
-      vb.customize ['createhd', '--filename', 'dcd3ac98.vdi', '--size', CONFIG['resources']['storage']]
-      vb.customize ['storageattach', :id, '--storagectl', 'IDE Controller', '--port', 1, '--device', 0, '--type', 'hdd', '--medium', 'dcd3ac98.vdi']
-    end
+    add_block_device(node, 0, CONFIG['resources']['storage'])
   end
 
   config.vm.define "controller", primary: true do |node|
@@ -67,12 +71,8 @@ Vagrant.configure(2) do |config|
       vb.customize ["modifyvm", :id, "--memory", (CONFIG['resources']['memory'] * 2)]
       vb.customize ["modifyvm", :id, "--cpus", (CONFIG['resources']['vcpus'] * 2)]
     end
-    node.vm.provider "virtualbox" do |vb|
-      vb.customize ['createhd', '--filename', 'e7a31749.vdi', '--size', CONFIG['resources']['storage']]
-      vb.customize ['storageattach', :id, '--storagectl', 'IDE Controller', '--port', 1, '--device', 0, '--type', 'hdd', '--medium', 'e7a31749.vdi']
-      vb.customize ['createhd', '--filename', '7dcc603c.vdi', '--size', CONFIG['resources']['storage']]
-      vb.customize ['storageattach', :id, '--storagectl', 'IDE Controller', '--port', 1, '--device', 1, '--type', 'hdd', '--medium', '7dcc603c.vdi']
-    end
+    add_block_device(node, 0, CONFIG['resources']['storage'])
+    add_block_device(node, 1, CONFIG['resources']['storage'])
   end
 
 end
