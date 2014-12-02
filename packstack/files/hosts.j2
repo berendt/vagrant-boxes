@@ -4,6 +4,6 @@
 {% for name in ['controller', 'network', 'storage', 'filer', 'shared'] %}
 {{ address[name] }} {{ name }}
 {% endfor %}
-{% for name, ip in address['compute'].items() %}
-{{ ip }} {{ name }} 
+{% for ip in address['compute'] %}
+{{ ip }} node{{ loop.index }} 
 {% endfor %}

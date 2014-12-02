@@ -18,32 +18,13 @@
 - copy: src=files/initialize.sh dest=/home/vagrant/scripts/initialize.sh mode=0755 owner=vagrant group=vagrant
 - filesystem: fstype=xfs dev=/dev/sdb force=yes
 - filesystem: fstype=xfs dev=/dev/sdc force=yes
-
-- file: path=/home/vagrant/answers state=directory owner=vagrant group=vagrant mode=0755
-
-- set_fact: exclude_servers=""
-- template: src=files/packstack.answers.j2 dest=/home/vagrant/answers/packstack.answers owner=vagrant group=vagrant
-
-- set_fact: exclude_servers="{{ compute }},{{ network }},{{ storage }},{{ shared }}"
-- template: src=files/packstack.answers.j2 dest=/home/vagrant/answers/controller.answers owner=vagrant group=vagrant
-
-- set_fact: exclude_servers="{{ controller }},{{ network }},{{ storage }},{{ shared }}"
-- template: src=files/packstack.answers.j2 dest=/home/vagrant/answers/compute.answers owner=vagrant group=vagrant
-
-- set_fact: exclude_servers="{{ controller }},{{ compute }},{{ storage }},{{ shared }}"
-- template: src=files/packstack.answers.j2 dest=/home/vagrant/answers/network.answers owner=vagrant group=vagrant
-
-- set_fact: exclude_servers="{{ controller }},{{ compute }},{{ network }},{{ shared }}"
-- template: src=files/packstack.answers.j2 dest=/home/vagrant/answers/storage.answers owner=vagrant group=vagrant
-
-- set_fact: exclude_servers="{{ controller }},{{ compute }},{{ network }},{{ storage }}"
-- template: src=files/packstack.answers.j2 dest=/home/vagrant/answers/shared.answers owner=vagrant group=vagrant
-
+- template: src=files/packstack.answers.j2 dest=/home/vagrant/packstack.answers owner=vagrant group=vagrant
 - yum: name=patch state=present
-  when: development
+  when: not development
 - copy: src=patches dest=/home/vagrant owner=vagrant group=vagrant mode=0644
   when: not development
-- patch: patchfile=/home/vagrant/patches/mongodb.pp basedir=/ strip=1
+- patch: patchfile={{ item }} basedir=/ strip=1
   when: not development
-- patch: patchfile=/home/vagrant/patches/nova_compute_libvirt.pp basedir=/ strip=1
-  when: not development
+  with_items:
+  - /home/vagrant/patches/mongodb.pp
+  - /home/vagrant/patches/nova_compute_libvirt.pp

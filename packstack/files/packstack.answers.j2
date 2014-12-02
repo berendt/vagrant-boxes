@@ -62,7 +62,7 @@ CONFIG_NAGIOS_INSTALL=y
 # case you are running Packstack the second time with the same answer
 # file and don't want Packstack to touch these servers. Leave plain if
 # you don't need to exclude any server.
-EXCLUDE_SERVERS={{ exclude_servers }}
+EXCLUDE_SERVERS=
 
 # Set to 'y' if you want to run OpenStack services in debug mode.
 # Otherwise set to 'n'.
@@ -70,15 +70,15 @@ CONFIG_DEBUG_MODE=y
 
 # The IP address of the server on which to install OpenStack services
 # specific to controller role such as API servers, Horizon, etc.
-CONFIG_CONTROLLER_HOST={{ controller }}
+CONFIG_CONTROLLER_HOST={{ address.controller }}
 
 # The list of IP addresses of the server on which to install the Nova
 # compute service
-CONFIG_COMPUTE_HOSTS={{ compute }}
+CONFIG_COMPUTE_HOSTS={{ address.compute | join(",") }}
 
 # The list of IP addresses of the server on which to install the
 # network service such as Nova network or Neutron
-CONFIG_NETWORK_HOSTS={{ network }}
+CONFIG_NETWORK_HOSTS={{ address.network }}
 
 # Set to 'y' if you want to use VMware vCenter as hypervisor and
 # storage. Otherwise set to 'n'.
@@ -104,7 +104,7 @@ CONFIG_VCENTER_CLUSTER_NAME=
 # (Unsupported!) The IP address of the server on which to install
 # OpenStack services specific to storage servers such as Glance and
 # Cinder.
-CONFIG_STORAGE_HOST={{ storage }}
+CONFIG_STORAGE_HOST={{ address.storage }}
 
 # To subscribe each server to EPEL enter "y"
 CONFIG_USE_EPEL=n
@@ -176,7 +176,7 @@ CONFIG_SATELLITE_PROXY_PW=
 CONFIG_AMQP_BACKEND=rabbitmq
 
 # The IP address of the server on which to install the AMQP service
-CONFIG_AMQP_HOST={{ shared }}
+CONFIG_AMQP_HOST={{ address.shared }}
 
 # Enable SSL for the AMQP service
 CONFIG_AMQP_ENABLE_SSL=n
@@ -209,7 +209,7 @@ CONFIG_AMQP_AUTH_PASSWORD=password
 
 # The IP address of the server on which to install MariaDB or IP
 # address of DB server to use if MariaDB installation was not selected
-CONFIG_MARIADB_HOST={{ shared }}
+CONFIG_MARIADB_HOST={{ address.shared }}
 
 # Username for the MariaDB admin user
 CONFIG_MARIADB_USER=root
@@ -275,7 +275,7 @@ CONFIG_CINDER_GLUSTER_MOUNTS=
 
 # A single or comma seprated list of NFS exports to mount, eg: ip-
 # address:/export-name
-CONFIG_CINDER_NFS_MOUNTS='{{ filer }}:/export'
+CONFIG_CINDER_NFS_MOUNTS='{{ address.filer }}:/export'
 
 # (required) Administrative user account name used to access the
 # storage system or proxy server.
@@ -667,7 +667,7 @@ CONFIG_CEILOMETER_SECRET=password
 CONFIG_CEILOMETER_KS_PW=password
 
 # The IP address of the server on which to install MongoDB
-CONFIG_MONGODB_HOST={{ shared }}
+CONFIG_MONGODB_HOST={{ address.shared }}
 
 # The password of the nagiosadmin user on the Nagios server
 CONFIG_NAGIOS_PW=password

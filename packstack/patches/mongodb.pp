@@ -1,17 +1,9 @@
---- a/usr/lib/python2.7/site-packages/packstack/puppet/templates/mongodb.pp	2014-11-27 11:58:21.315655405 +0000
-+++ b/usr/lib/python2.7/site-packages/packstack/puppet/templates/mongodb.pp	2014-11-27 11:58:30.509627554 +0000
-@@ -1,4 +1,14 @@
-+case $::operatingsystem {
-+    'Fedora': {
-+        $pidfilepath = '/var/run/mongodb/mongodb.pid'
-+    }
-+    default: {
-+        $pidfilepath = '/var/run/mongodb/mongod.pid'
-+    }
-+}
-+
+--- a/usr/lib/python2.7/site-packages/packstack/puppet/templates/mongodb.pp 2014-12-02 16:19:58.274432117 +0000
++++ b/usr/lib/python2.7/site-packages/packstack/puppet/templates/mongodb.pp 2014-12-02 16:20:15.620432319 +0000
+@@ -3,5 +3,5 @@
  class { 'mongodb::server':
-     smallfiles   => true,
-     bind_ip      => ['%(CONFIG_MONGODB_HOST)s'],
-+    pidfilepath  => $pidfilepath,
+   smallfiles => true,
+   bind_ip    => [$mongodb_host],
++  pidfilepath = '/var/run/mongodb/mongod.pid'
  }
+-
