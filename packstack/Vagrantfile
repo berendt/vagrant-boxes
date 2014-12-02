@@ -46,8 +46,6 @@ Vagrant.configure(2) do |config|
   end
 
   config.vm.define "filer" do |node|
-#    node.ssh.shell = "bash -c 'BASH_ENV=/etc/profile exec bash'"
-#    node.vm.box = 'ubuntu/trusty64'
     node.vm.hostname= "filer"
     node.vm.network :public_network, ip: CONFIG['address']['filer'], netmask: CONFIG['netmask'], bridge: CONFIG['bridge']
     node.vm.provision "ansible" do |ansible|
