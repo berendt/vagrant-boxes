@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -x
-
 JOBS=2
 
 has_sandbox_plugin() {
@@ -12,6 +10,8 @@ has_sandbox_plugin() {
 run_parallel() {
     python scripts/get_hosts.py | xargs -n 1 -P $JOBS -I BOX sh -c "vagrant $* BOX 2>&1 >> log/BOX.log"
 }
+
+rm -f log/*
 
 echo "$(date) brining up all VMs"
 run_parallel up --no-provision
