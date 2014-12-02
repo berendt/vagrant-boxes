@@ -13,79 +13,67 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-BOX = "chef/centos-7.0"
-BRIDGE = "tap0"
+require 'yaml'
+CONFIG = YAML.load(File.open(File.join(File.dirname(__FILE__), "config.yaml"), File::RDONLY).read)
 
 Vagrant.configure(2) do |config|
-  config.vm.box = BOX
-  config.vm.provider "virtualbox" do |vb|
-    vb.customize ["modifyvm", :id, "--memory", "8192"]
-    vb.customize ["modifyvm", :id, "--cpus", "4"]
-  end
+  config.vm.box = CONFIG['box']
   config.vm.synced_folder '.', '/vagrant', disabled: true
-  config.vm.define "compute001" do |node|
-    node.vm.hostname= "compute001"
-    node.vm.network :public_network, ip: '10.100.50.20', netmask: '255.255.0.0', bridge: BRIDGE
-    node.vm.provision "ansible" do |ansible|
-      ansible.playbook = "playbook.yaml"
+  config.vm.provider "virtualbox" do |vb|
+    vb.customize ["modifyvm", :id, "--memory", CONFIG['resources']['memory']]
+    vb.customize ["modifyvm", :id, "--cpus", CONFIG['resources']['vcpus']]
+  end
+
+  CONFIG['address']['compute'].each do |name, address|
+    config.vm.define name do |node|
+      node.vm.hostname= name
+      node.vm.network :public_network, ip: address, netmask: CONFIG['netmask'], bridge: CONFIG['bridge']
+      node.vm.provision "ansible" do |ansible|
+        ansible.playbook = "playbook.yaml"
+      end
     end
   end
-  config.vm.define "compute002" do |node|
-    node.vm.hostname= "compute002"
-    node.vm.network :public_network, ip: '10.100.50.21', netmask: '255.255.0.0', bridge: BRIDGE
-    node.vm.provision "ansible" do |ansible|
-      ansible.playbook = "playbook.yaml"
+
+  ['network', 'storage', 'shared'].each do |name|
+    config.vm.define name do |node|
+      node.vm.hostname = name
+      node.vm.network :public_network, ip: CONFIG['address'][name], netmask: CONFIG['netmask'], bridge: CONFIG['bridge']
+      node.vm.provision "ansible" do |ansible|
+        ansible.playbook = "playbook.yaml"
+      end
     end
   end
-  config.vm.define "network" do |node|
-    node.vm.hostname= "network"
-    node.vm.network :public_network, ip: '10.100.50.30', netmask: '255.255.0.0', bridge: BRIDGE
-    node.vm.provision "ansible" do |ansible|
-      ansible.playbook = "playbook.yaml"
-    end
-  end
-  config.vm.define "storage" do |node|
-    node.vm.hostname= "storage"
-    node.vm.network :public_network, ip: '10.100.50.40', netmask: '255.255.0.0', bridge: BRIDGE
-    node.vm.provision "ansible" do |ansible|
-      ansible.playbook = "playbook.yaml"
-    end
-  end
+
   config.vm.define "filer" do |node|
     node.ssh.shell = "bash -c 'BASH_ENV=/etc/profile exec bash'"
     node.vm.box = 'ubuntu/trusty64'
     node.vm.hostname= "filer"
-    node.vm.network :public_network, ip: '10.100.50.41', netmask: '255.255.0.0', bridge: BRIDGE
+    node.vm.network :public_network, ip: CONFIG['address']['filer'], netmask: CONFIG['netmask'], bridge: CONFIG['bridge']
     node.vm.provision "ansible" do |ansible|
       ansible.playbook = "playbook.yaml"
     end
     node.vm.provider "virtualbox" do |vb|
-      vb.customize ['createhd', '--filename', 'dcd3ac98.vdi', '--size', 65536]
+      vb.customize ['createhd', '--filename', 'dcd3ac98.vdi', '--size', CONFIG['resources']['storage']]
       vb.customize ['storageattach', :id, '--storagectl', 'SATAController', '--port', 1, '--device', 0, '--type', 'hdd', '--medium', 'dcd3ac98.vdi']
     end
   end
-  config.vm.define "shared" do |node|
-    node.vm.hostname= "shared"
-    node.vm.network :public_network, ip: '10.100.50.50', netmask: '255.255.0.0', bridge: BRIDGE
-    node.vm.provision "ansible" do |ansible|
-      ansible.playbook = "playbook.yaml"
-    end
-  end
+
   config.vm.define "controller", primary: true do |node|
     node.vm.hostname= "controller"
-    node.vm.network :public_network, ip: '10.100.50.10', netmask: '255.255.0.0', bridge: BRIDGE
+    node.vm.network :public_network, ip: CONFIG['address']['controller'], netmask: CONFIG['netmask'], bridge: CONFIG['bridge']
     node.vm.provision "ansible" do |ansible|
       ansible.playbook = "playbook.yaml"
     end
     node.vm.provider "virtualbox" do |vb|
-      vb.customize ["modifyvm", :id, "--memory", "16384"]
-      vb.customize ["modifyvm", :id, "--cpus", "4"]
+      vb.customize ["modifyvm", :id, "--memory", (CONFIG['resources']['memory'] * 2)]
+      vb.customize ["modifyvm", :id, "--cpus", (CONFIG['resources']['vcpus'] * 2)]
     end
     node.vm.provider "virtualbox" do |vb|
-      vb.customize ['createhd', '--filename', 'e7a31749.vdi', '--size', 65536]
+      vb.customize ['createhd', '--filename', 'e7a31749.vdi', '--size', CONFIG['resources']['storage']]
       vb.customize ['storageattach', :id, '--storagectl', 'IDE Controller', '--port', 1, '--device', 0, '--type', 'hdd', '--medium', 'e7a31749.vdi']
-      vb.customize ['createhd', '--filename', '7dcc603c.vdi', '--size', 65536]
+      vb.customize ['createhd', '--filename', '7dcc603c.vdi', '--size', CONFIG['resources']['storage']]
       vb.customize ['storageattach', :id, '--storagectl', 'IDE Controller', '--port', 1, '--device', 1, '--type', 'hdd', '--medium', '7dcc603c.vdi']
     end
   end
+
 end

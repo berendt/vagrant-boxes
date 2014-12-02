@@ -1,8 +1,18 @@
 ---
+box: 'chef/centos-7.0'
+bridge: 'tap0'
 development: false
-compute: '10.100.50.20,10.100.50.21'
-controller: '10.100.50.10'
-filer: '10.100.50.41'
-network: '10.100.50.30'
-shared: '10.100.50.50'
-storage: '10.100.50.40'
+address:
+  controller: '10.100.50.10'
+  filer: '10.100.50.41'
+  network: '10.100.50.30'
+  shared: '10.100.50.50'
+  storage: '10.100.50.40'
+  compute:
+    compute001: '10.100.50.20'
+    compute002: '10.100.50.21'
+netmask: '255.255.0.0'
+resources:
+  memory: 4096
+  vcpus: 2
+  storage: 65536

@@ -1,10 +1,9 @@
 127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
 ::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
 
-{{ controller }}       controller 
-{{ network }}       network 
-{{ storage }}       storage 
-{{ filer }}       filer 
-{{ shared }}       shared 
-10.100.50.20       compute001 
-10.100.50.21       compute002 
+{% for name in ['controller', 'network', 'storage', 'filer', 'shared'] %}
+{{ address[name] }} {{ name }}
+{% endfor %}
+{% for name, ip in address['compute'].items() %}
+{{ ip }} {{ name }} 
+{% endfor %}

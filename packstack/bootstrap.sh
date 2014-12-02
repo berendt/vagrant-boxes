@@ -5,7 +5,7 @@ set -x
 JOBS=2
 
 run_parallel() {
-    cat nodes | xargs -n 1 -P $JOBS -I BOX sh -c "vagrant $* BOX 2>&1 >> log/BOX.log"
+    python get_hosts.py | xargs -n 1 -P $JOBS -I BOX sh -c "vagrant $* BOX 2>&1 >> log/BOX.log"
 }
 
 echo "$(date) brining up all VMs"
