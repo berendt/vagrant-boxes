@@ -6,8 +6,7 @@ This is a Vagrant environment providing a Packstack installation. Packstack itse
 
 To run this Vagrant environment you have to install the following Vagrant plugins:
 
-- vagrant-sandbox
-- vagrant-hostmanager
+- vagrant-sandbox (`vagrant plugin install vagrant-sandbox`)
 
 ## Initialization
 
