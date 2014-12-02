@@ -2,8 +2,10 @@
 - yum: name=https://rdo.fedorapeople.org/rdo-release.rpm state=present
 - yum: name=http://yum.puppetlabs.com/puppetlabs-release-el-7.noarch.rpm state=present
 - yum: name=git state=present
+  when: development
 - git: repo=https://github.com/stackforge/packstack
        dest=/opt/packstack
+  when: development
 - command: python setup.py install
            chdir=/opt/packstack
   when: development
