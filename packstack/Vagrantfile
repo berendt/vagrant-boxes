@@ -30,15 +30,15 @@ Vagrant.configure(2) do |config|
     vb.customize ["modifyvm", :id, "--memory", CONFIG['resources']['memory']]
     vb.customize ["modifyvm", :id, "--cpus", CONFIG['resources']['vcpus']]
   end
+  config.vm.provision "ansible" do |ansible|
+    ansible.playbook = "playbook.yaml"
+  end
 
   CONFIG['address']['compute'].each_with_index do |address, index|
     name = "compute#{index + 1}"
     config.vm.define name do |node|
       node.vm.hostname= name
       node.vm.network :public_network, ip: address, netmask: CONFIG['netmask'], bridge: CONFIG['bridge']
-      node.vm.provision "ansible" do |ansible|
-        ansible.playbook = "playbook.yaml"
-      end
     end
   end
 
@@ -46,27 +46,18 @@ Vagrant.configure(2) do |config|
     config.vm.define name do |node|
       node.vm.hostname = name
       node.vm.network :public_network, ip: CONFIG['address'][name], netmask: CONFIG['netmask'], bridge: CONFIG['bridge']
-      node.vm.provision "ansible" do |ansible|
-        ansible.playbook = "playbook.yaml"
-      end
     end
   end
 
   config.vm.define "filer" do |node|
     node.vm.hostname= "filer"
     node.vm.network :public_network, ip: CONFIG['address']['filer'], netmask: CONFIG['netmask'], bridge: CONFIG['bridge']
-    node.vm.provision "ansible" do |ansible|
-      ansible.playbook = "playbook.yaml"
-    end
     add_block_device(node, 0, CONFIG['resources']['storage'])
   end
 
   config.vm.define "controller", primary: true do |node|
     node.vm.hostname= "controller"
     node.vm.network :public_network, ip: CONFIG['address']['controller'], netmask: CONFIG['netmask'], bridge: CONFIG['bridge']
-    node.vm.provision "ansible" do |ansible|
-      ansible.playbook = "playbook.yaml"
-    end
     node.vm.provider "virtualbox" do |vb|
       vb.customize ["modifyvm", :id, "--memory", (CONFIG['resources']['memory'] * 2)]
       vb.customize ["modifyvm", :id, "--cpus", (CONFIG['resources']['vcpus'] * 2)]
