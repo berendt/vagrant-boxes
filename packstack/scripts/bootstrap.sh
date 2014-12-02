@@ -8,7 +8,7 @@ has_sandbox_plugin() {
 }
 
 run_parallel() {
-    python scripts/get_hosts.py | xargs -n 1 -P $JOBS -I BOX sh -c "vagrant $* BOX 2>&1 >> log/BOX.log"
+    python scripts/get_hosts.py | xargs -n 1 -P $JOBS -I BOX sh -c "echo - BOX && (vagrant $* BOX 2>&1 >> log/BOX.log)"
 }
 
 rm -f log/*

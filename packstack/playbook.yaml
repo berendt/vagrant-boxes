@@ -5,5 +5,5 @@
   - include: ansible/initialize.yaml
   - include: ansible/controller.yaml
     when: inventory_hostname_short == 'controller'
-  - include: ansible/filer.yaml
-    when: inventory_hostname_short == 'filer'
+  - include: ansible/nfs.yaml
+    when: inventory_hostname_short == 'nfs'

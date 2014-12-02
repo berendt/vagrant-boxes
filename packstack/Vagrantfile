@@ -49,9 +49,9 @@ Vagrant.configure(2) do |config|
     end
   end
 
-  config.vm.define "filer" do |node|
-    node.vm.hostname= "filer"
-    node.vm.network :public_network, ip: CONFIG['address']['filer'], netmask: CONFIG['netmask'], bridge: CONFIG['bridge']
+  config.vm.define "nfs" do |node|
+    node.vm.hostname= "nfs"
+    node.vm.network :public_network, ip: CONFIG['address']['nfs'], netmask: CONFIG['netmask'], bridge: CONFIG['bridge']
     add_block_device(node, 0, CONFIG['resources']['storage'])
   end
 
