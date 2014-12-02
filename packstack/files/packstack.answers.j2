@@ -52,7 +52,7 @@ CONFIG_CLIENT_INSTALL=y
 
 # Comma separated list of NTP servers. Leave plain if Packstack
 # should not install ntpd on instances.
-CONFIG_NTP_SERVERS={{ address.ntp | join(",") }}
+CONFIG_NTP_SERVERS={{ ntp | join(",") }}
 
 # Set to 'y' if you would like Packstack to install Nagios to monitor
 # OpenStack hosts
