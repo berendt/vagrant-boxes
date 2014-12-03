@@ -1,9 +1,0 @@
-- hosts: all
-  sudo: True
-  tasks:
-  - include_vars: config.yaml
-  - include: ansible/initialize.yaml
-  - include: ansible/controller.yaml
-    when: inventory_hostname_short == 'controller'
-  - include: ansible/nfs.yaml
-    when: inventory_hostname_short == 'nfs'
