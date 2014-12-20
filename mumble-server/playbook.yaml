@@ -1,0 +1,21 @@
+- hosts: all
+  sudo: True
+  tasks:
+  - name: upgrade all installed packages
+    apt: upgrade=yes update_cache=yes
+  - name: install necessary packages
+    apt: name={{ item }} state=present
+    with_items:
+    - mumble-server
+    - python-zeroc-ice
+  - name: copy /etc/mumble-server.ini file
+    copy: src=files/mumble-server.ini dest=/etc/mumble-server.ini owner=root group=mumble-server mode=0640
+  - name: copy /etc/default/mumble-server file
+    copy: src=files/mumble-server.default dest=/etc/default/mumble-server owner=root group=root mode=0644
+  - name: restart and enable mumble-server service
+    service: name=mumble-server state=restarted enabled=yes
+  - name: get the password of the initial SuperUser
+    shell: grep "Password for 'SuperUser'" /var/log/mumble-server/mumble-server.log | sed "s/.*set to '\(.*\)'/\1/"
+    register: result
+  - name: password of the initial SuperUser
+    debug: var=result.stdout
