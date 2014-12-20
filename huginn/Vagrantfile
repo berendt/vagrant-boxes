@@ -13,7 +13,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-BOX = "box-cutter/fedora20"
+BOX = "box-cutter/fedora21"
 
 Vagrant.configure(2) do |config|
   config.vm.box = BOX
