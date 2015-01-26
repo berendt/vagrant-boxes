@@ -13,7 +13,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-BOX = "berendt/opensuse-13.2-x86_64"
+BOX = "ubuntu/trusty64"
 
 Vagrant.configure(2) do |config|
   config.vm.box = BOX

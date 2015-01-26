@@ -2,8 +2,6 @@
   sudo: True
 
   vars:
-    release: Juno
-    distribution: openSUSE_13.2
     keystone_init:
       OS_SERVICE_TOKEN: password
       OS_SERVICE_ENDPOINT: http://localhost:35357/v2.0
@@ -14,25 +12,11 @@
       OS_AUTH_URL: http://localhost:35357/v2.0
 
   tasks:
-  - command: rpm --import http://download.opensuse.org/repositories/Cloud:/OpenStack:/{{ release }}/{{ distribution }}/repodata/repomd.xml.key
-  - command: zypper addrepo -f obs://Cloud:OpenStack:{{ release }}/{{ distribution }} {{ release }}
-             creates=/etc/zypp/repos.d/{{ release }}.repo
-  - command: zypper addrepo -f obs://Cloud:OpenStack:{{ release }}:Staging/{{ distribution }} {{ release }}_Staging
-             creates=/etc/zypp/repos.d/{{ release }}_Staging.repo
-  - command: zypper ref creates=/tmp/ansible_zypper_refresh.log
-    environment:
-      ZYPP_LOGFILE: /tmp/ansible_zypper_refresh.log
-  - command: zypper up -y creates=/tmp/ansible_zypper_update.log
-    environment:
-      ZYPP_LOGFILE: /tmp/ansible_zypper_update.log
-  - zypper: name=ntp state=present
-  - copy: src=files/ntp.conf dest=/etc/ntp.conf
-  - service: name=ntpd state=restarted enabled=yes
-
-  - zypper: name=mariadb-client state=present
-  - zypper: name=mariadb state=present
-  - zypper: name=python-mysql state=present
-  - zypper: name=expect state=present
+  - apt: update_cache=yes upgrade=yes
+  - apt: name=mysql-server state=present
+  - apt: name=mysql-client state=present
+  - apt: name=python-mysqldb state=present
+  - apt: name=expect state=present
   - copy: src=files/my.cnf dest=/etc/my.cnf
   - service: name=mysql state=restarted enabled=yes
   - copy: src=files/mysql_secure_installation.sh
@@ -47,8 +31,8 @@
   - mysql_user: name=keystone password=password host=localhost priv=keystone.*:ALL state=present
   - mysql_user: name=keysotne password=password host=% priv=keystone.*:ALL state=present
 
-  - zypper: name=openstack-keystone state=present
-  - zypper: name=python-keystoneclient state=present
+  - apt: name=keystone state=present
+  - apt: name=python-keystoneclient state=present
   - command: keystone-manage pki_setup --keystone-user keystone --keystone-group keystone
              creates=/etc/keystone/ssl/certs/01.pem
   - file: path=/etc/keystone/ssl owner=keystone group=keystone mode=750 state=directory recurse=yes
@@ -74,8 +58,20 @@
               option=debug
               value=True
 
+  - ini_file: dest=/etc/keystone/keystone.conf
+              section=DEFAULT
+              option=log_dir
+              value=/var/log/keystone
+
+  - ini_file: dest=/etc/keystone/keystone.conf
+              section=DEFAULT
+              option=log_file
+              value=keystone.log
+
   - command: su -s /bin/sh -c "keystone-manage db_sync" keystone
-  - service: name=openstack-keystone state=restarted enabled=yes
+  - service: name=keystone state=restarted enabled=yes
+
+  - wait_for: port=35357 delay=10
 
   - shell: keystone tenant-create --name admin --description "Admin Tenant"
     environment: keystone_init
@@ -91,6 +87,10 @@
     environment: keystone_init
   - shell: keystone endpoint-create --service-id $(keystone service-list | awk '/ identity / {print $2}') --publicurl http://localhost:5000/v2.0 --internalurl http://localhost:5000/v2.0 --adminurl http://localhost:35357/v2.0 --region regionOne
     environment: keystone_init
+  - shell: keystone tenant-create --name tenant1
+    environment: keystone_init
+  - shell: keystone user-create --name user1 --pass password --tenant tenant1
+    environment: keystone_init
 
-  - copy: src=files/admin-openrc.sh dest=/home/vagrant/admin-openrc.sh owner=vagrant group=users mode=0644
-  - shell: (crontab -l -u keystone 2>&1 | grep -q token_flush) || echo '@hourly /usr/bin/keystone-manage token_flush >/var/log/keystone/keystone-tokenflush.log 2>&1' > /var/spool/cron/tabs/keystone
+  - copy: src=files/openrc dest=/home/vagrant/openrc owner=vagrant group=users mode=0644
+  - copy: src=files/openrc.tenant1 dest=/home/vagrant/openrc.tenant1 owner=vagrant group=users mode=0644
