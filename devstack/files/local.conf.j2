@@ -1,0 +1,77 @@
+[[local|localrc]]
+
+DATABASE_PASSWORD={{ password }}
+RABBIT_PASSWORD={{ password }}
+SERVICE_TOKEN={{ password }}
+SERVICE_PASSWORD={{ password }}
+ADMIN_PASSWORD={{ password }}
+
+HOST_IP={{ networking.address }}
+
+disable_service n-net
+enable_service q-svc
+enable_service q-agt
+enable_service q-dhcp
+enable_service q-l3
+enable_service q-meta
+enable_service q-metering
+enable_service q-vpn
+enable_service q-fwaas
+enable_service q-lbaas
+IP_VERSION=4+6
+
+{% if components.trove == 'true' %}
+enable_service trove
+enable_service tr-tmgr
+enable_service tr-cond
+enable_service tr-api
+{% endif %}
+
+{% if components.ceilometer == 'true' %}
+enable_service ceilometer-acompute
+enable_service ceilometer-acentral
+enable_service ceilometer-anotification
+enable_service ceilometer-collector
+enable_service ceilometer-api
+enable_service ceilometer-alarm-notifier
+enable_service ceilometer-alarm-evaluator
+{% endif %}
+
+{% if components.sahara == 'true' %}
+enable_service sahara
+{% endif %}
+
+{% if components.ceph == 'true' %}
+enable_service ceph
+CINDER_DRIVER=ceph
+CINDER_ENABLED_BACKENDS=ceph
+{% endif %}
+
+{% if components.ironic == 'true' %}
+enable_service ir-api
+enable_service ir-cond
+{% endif %}
+
+{% if components.zaqar == 'true' %}
+enable_service zaqar-server
+{% endif %}
+
+{% if components.swift == 'true' %}
+enable_service s-proxy
+enable_service s-object
+enable_service s-container
+enable_service s-account
+SWIFT_HASH={{ password }}
+SWIFT_REPLICAS=1
+{% endif %}
+
+{% if components.opendaylight == 'true' %}
+enable_service odl-server
+enable_service odl-compute
+{% endif %}
+
+{% if components.tempest == 'true' %}
+enable_service tempest
+{% endif %}
+
+# IMAGE_URLS
