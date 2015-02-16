@@ -1,0 +1,30 @@
+- hosts: all
+  sudo: True
+
+  tasks:
+  - shell: curl -sL https://deb.nodesource.com/setup | bash -
+    args:
+      creates: /etc/apt/sources.list.d/nodesource.list
+  - apt: update-cache=yes upgrade=yes
+  - apt: name={{ item }} state=latest
+    with_items:
+      - build-essential
+      - gcc
+      - git
+      - make
+      - mongodb
+      - nodejs
+      - python-pymongo
+  - service: name=mongodb state=started enabled=yes
+  - wait_for: port=27017 delay=2
+  - mongodb_user: database=meanjs
+                  name=meanjs
+                  password=secretsecret
+                  state=present
+  - npm: name={{ item }} global=yes state=latest
+    with_items:
+      - npm
+      - bower
+      - gulp
+      - yo
+  - command: npm install -g meanjs/generator-meanjs#0.4-dev
