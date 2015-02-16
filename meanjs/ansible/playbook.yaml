@@ -28,6 +28,6 @@
       - gulp
       - yo
   - command: npm install -g meanjs/generator-meanjs#0.4-dev
-  - command: wget -qO- https://toolbelt.heroku.com/install-ubuntu.sh | sh
+  - shell: wget -qO- https://toolbelt.heroku.com/install-ubuntu.sh | sh
     args:
       creates: /etc/apt/sources.list.d/heroku.list
