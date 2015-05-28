@@ -28,9 +28,12 @@ end
 $shell = <<-CONTENTS
 export DEBIAN_FRONTEND=noninteractive
 apt-get update && apt-get upgrade -y
-apt-get install -y python-dev python-pip
+apt-get install -y python-dev python-pip python-virtualenv
+virtualenv /home/vagrant/.venv
+echo "source /home/vagrant/.venv/bin/activate" >> /home/vagrant/.bashrc
+source /home/vagrant/.venv/bin/activate
 projects=https://raw.githubusercontent.com/openstack/governance/master/reference/projects.yaml
 for client in $(curl -s $projects | grep 'repo:.*/python-.*client' | cut -d / -f 2); do
-    apt-get install -y $client
+    pip install $client
 done
 CONTENTS
