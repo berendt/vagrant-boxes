@@ -1,0 +1,21 @@
+---
+network1:
+  memory: 512 
+  cpus: 1
+  address: 10.20.%d.31
+  box: boxcutter/centos71
+network2:
+  memory: 512
+  cpus: 1
+  address: 10.20.%d.32
+  box: boxcutter/centos71
+network3:
+  memory: 512
+  cpus: 1
+  address: 10.20.%d.33
+  box: boxcutter/centos71
+controller:
+  memory: 2048
+  cpus: 2
+  address: 10.20.%d.11
+  box: boxcutter/centos71
