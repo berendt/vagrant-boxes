@@ -8,6 +8,13 @@ ADMIN_PASSWORD={{ password }}
 
 HOST_IP={{ networking.address }}
 
+LOGFILE=/opt/stack/logs/stack.sh.log
+LOG_COLOR=False
+
+RECLONE=yes
+
+# NEUTRON
+
 disable_service n-net
 enable_service q-svc
 enable_service q-agt
@@ -18,27 +25,34 @@ enable_service q-metering
 enable_service q-vpn
 enable_service q-fwaas
 enable_service q-lbaas
-IP_VERSION=4+6
+IP_VERSION=4
+
+# CINDER
+
+enable_service c-bak
+VOLUME_BACKING_FILE_SIZE=102500M
+CINDER_VOLUME_CLEAR=none
+
+{% if components.heat == 'true' %}
+# HEAT
+
+enable_service h-eng
+enable_service h-api
+enable_service h-api-cfn
+enable_service h-api-cw
+{% endif %}
 
 {% if components.trove == 'true' %}
-enable_service trove
-enable_service tr-tmgr
-enable_service tr-cond
-enable_service tr-api
+# TROVE
+
+enable_plugin trove git://git.openstack.org/openstack/trove master
 {% endif %}
 
 {% if components.ceilometer == 'true' %}
-enable_service ceilometer-acompute
-enable_service ceilometer-acentral
-enable_service ceilometer-anotification
-enable_service ceilometer-collector
-enable_service ceilometer-api
-enable_service ceilometer-alarm-notifier
-enable_service ceilometer-alarm-evaluator
-{% endif %}
+# CEILOMETER
 
-{% if components.sahara == 'true' %}
-enable_service sahara
+enable_plugin ceilometer https://github.com/openstack/ceilometer master
+CEILOMETER_PIPELINE_INTERVAL=30
 {% endif %}
 
 {% if components.ceph == 'true' %}
@@ -47,31 +61,51 @@ CINDER_DRIVER=ceph
 CINDER_ENABLED_BACKENDS=ceph
 {% endif %}
 
-{% if components.ironic == 'true' %}
-enable_service ir-api
-enable_service ir-cond
-{% endif %}
-
-{% if components.zaqar == 'true' %}
-enable_service zaqar-server
-{% endif %}
-
 {% if components.swift == 'true' %}
+# SWIFT
+
 enable_service s-proxy
 enable_service s-object
 enable_service s-container
 enable_service s-account
 SWIFT_HASH={{ password }}
 SWIFT_REPLICAS=1
-{% endif %}
-
-{% if components.opendaylight == 'true' %}
-enable_service odl-server
-enable_service odl-compute
+SWIFT_TEMPURL_KEY={{ password }}
+SWIFT_ENABLE_TEMPURLS=True
 {% endif %}
 
 {% if components.tempest == 'true' %}
+# TEMPEST
+
 enable_service tempest
 {% endif %}
 
-# IMAGE_URLS
+{% if components.mistral == 'true' %}
+# MISTRAL
+
+enable_plugin mistral https://github.com/openstack/mistral master
+{% endif %}
+
+{% if components.aodh == 'true' %}
+# AODH
+
+enable_plugin aodh https://github.com/openstack/mistral master
+{% endif %}
+
+{% if components.rally == 'true' %}
+# RALLY
+
+enable_plugin rally https://github.com/openstack/rally master
+{% endif %}
+
+{% if components.cloudkitty == 'true' %}
+# CLOUDKITTY
+
+enable_plugin cloudkitty https://github.com/openstack/cloudkitty master
+{% endif %}
+
+{% if components.gnocchi == 'true' %}
+# GNOCCHI
+
+# enable_plugin gnocchi https://git.openstack.org/openstack/gnocchi master
+{% endif %}

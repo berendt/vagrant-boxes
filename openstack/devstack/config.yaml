@@ -2,7 +2,7 @@
 box: ubuntu/trusty64
 password: password
 networking:
-  bridge: tap0
+  bridge: wlp3s0
   netmask: 255.255.0.0
   address: 10.100.60.10
 resources:
@@ -10,12 +10,14 @@ resources:
   vcpus: 2
   storage: 65536
 components:
+  aodh: false
   ceilometer: false
   ceph: false
-  ironic: false
-  opendaylight: false
-  sahara: false
+  cloudkitty: false
+  gnocchi: false
+  heat: false
+  rally: false
   swift: false
   tempest: false
   trove: false
-  zaqar: false
+  mistral: false
